@@ -1,4 +1,4 @@
-#for building and pushing dspace-angular docker image to dockerhub
+#for building and pushing dspace-angular docker image  to dockerhub
 name: Build and Push to DockerHub
 
 on:
