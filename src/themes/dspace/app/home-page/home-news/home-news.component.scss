@@ -1,0 +1,97 @@
+// Variables
+  $primary-color: #003d82;
+  $secondary-color: #002855;
+  $accent-color: #4CAF50;
+  $white: white;
+  $light-gray: #f0f0f0;
+  
+  $hero-padding: 100px 0;
+  $hero-padding-mobile: 60px 0;
+  
+  $transition-base: all 0.3s ease;
+  
+  // Hero Section
+  .hero-section {
+      background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                  url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%23003d82" width="1200" height="600"/><path fill="%23002855" d="M0 300L50 325L100 300L150 350L200 325L250 375L300 350L350 400L400 375L450 425L500 400L550 450L600 425L650 475L700 450L750 500L800 475L850 525L900 500L950 550L1000 525L1050 575L1100 550L1150 600L1200 575V600H0Z"/></svg>');
+      background-size: cover;
+      background-position: center;
+      color: $white;
+      padding: $hero-padding;
+      position: relative;
+
+      h1 {
+          font-size: 3.5rem;
+          font-weight: 700;
+          margin-bottom: 1.5rem;
+      }
+
+      .lead {
+          font-size: 1.25rem;
+          margin-bottom: 2rem;
+          line-height: 1.8;
+      }
+
+      ul {
+          list-style: none;
+          padding: 0;
+          margin: 2rem 0;
+
+          li {
+              padding: 0.75rem 0;
+              padding-left: 2rem;
+              position: relative;
+              font-size: 1.05rem;
+
+              &:before {
+                  content: "✓";
+                  position: absolute;
+                  left: 0;
+                  color: $accent-color;
+                  font-weight: bold;
+                  font-size: 1.3rem;
+              }
+          }
+      }
+
+      .closing-text {
+          margin-top: 2rem;
+          font-size: 1.1rem;
+          font-style: italic;
+          opacity: 0.95;
+      }
+  }
+
+  // Button
+  .btn-hero {
+      background: $white;
+      color: $primary-color;
+      padding: 12px 30px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 5px;
+      margin-top: 1.5rem;
+      transition: $transition-base;
+
+      &:hover {
+          background: $light-gray;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+  }
+
+  // Responsive
+  @media (max-width: 768px) {
+      .hero-section {
+          padding: $hero-padding-mobile;
+
+          h1 {
+              font-size: 2.5rem;
+          }
+
+          .lead {
+              font-size: 1.1rem;
+          }
+      }
+  }

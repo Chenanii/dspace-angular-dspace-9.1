@@ -1,0 +1,44 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sass.js/0.11.1/sass.sync.min.js"></script>
+<script>
+    // Compile SCSS to CSS on page load
+    const styleTag = document.querySelector('style[type="text/scss"]');
+    const scss = styleTag.textContent;
+    
+    Sass.compile(scss, function(result) {
+        if (result.status === 0) {
+            const cssStyle = document.createElement('style');
+            cssStyle.textContent = result.text;
+            document.head.appendChild(cssStyle);
+            styleTag.remove();
+        }
+    });
+</script>
+
+
+<div class="home-news-content py-4 px-2 py-sm-5 px-sm-0 mt-ncs mb-4">
+  <div class="container">
+    <div class="d-flex flex-wrap">
+      <div>
+        <h1 class="display-2">DIMT eLibraryx</h1>
+        <p class="lead">
+          Welcome to the Domasi Institute of Management and Technology (DIMT) eLibrary — 
+          a modern digital knowledge hub powered by DSpace 9. Access academic resources 
+          anytime, anywhere.
+        </p>
+      </div>
+    </div>
+
+    <ul>
+      <li>Access a wide range of scholarly materials including books, past papers, research projects, and lecture notes.</li>
+      <li>Search and retrieve content instantly through a user-friendly, mobile-friendly interface.</li>
+      <li>Enjoy secure and reliable access for registered DIMT students and staff.</li>
+      <li>Benefit from globally indexed content through Google Scholar and OAI-PMH standards.</li>
+      <li>Preserve academic works with permanent, citable identifiers (Handle / DOI supported).</li>
+    </ul>
+
+    <p>
+      The DIMT eLibrary supports the institute’s mission of academic excellence by 
+      providing high-quality digital learning resources to all its students and researchers.
+    </p>
+  </div>
+</div>

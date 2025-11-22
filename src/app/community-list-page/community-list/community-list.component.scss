@@ -1,0 +1,235 @@
+// ::ng-deep .fa-chevron-right::before {
+//   display: block;
+//   width: 16px;
+// }
+
+// Classic Tree Component Styles
+// =============================
+
+// Tree Container
+cdk-tree {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+}
+
+// Tree Nodes
+.example-tree-node {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  border-bottom: 1px solid #e8e8e8;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #f8f9fa;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+// Button Group Container
+.btn-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+}
+
+// Chevron Toggle Button
+button.btn-default.btn-transparent,
+.btn.btn-default {
+  background: transparent;
+  border: none;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  color: #555;
+
+  &:hover:not(.invisible) {
+    background-color: #e9ecef;
+    color: #000;
+  }
+
+  &:focus:not(.invisible) {
+    outline: 2px solid #0066cc;
+    outline-offset: 2px;
+  }
+
+  &.invisible {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+// Chevron Icons
+::ng-deep .fa-chevron-right,
+::ng-deep .fa-chevron-down {
+  &::before {
+    display: block;
+    width: 16px;
+    height: 16px;
+    font-size: 12px;
+    transition: transform 0.2s ease;
+  }
+}
+
+// Node Links
+.lead {
+  font-size: 15px;
+  font-weight: 500;
+  color: #0066cc;
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #0052a3;
+    text-decoration: underline;
+  }
+
+  &:focus {
+    outline: 2px solid #0066cc;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+h6 .lead {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+// Badges
+.badge.rounded-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  
+  &.bg-secondary {
+    background-color: #6c757d !important;
+  }
+
+  &.archived-items-lead {
+    margin-left: 8px;
+  }
+}
+
+// Description Text
+.text-muted {
+  color: #666 !important;
+  font-size: 13px;
+  line-height: 1.6;
+  margin-top: 4px;
+}
+
+// Show More Button
+.show-more-node {
+  .btn-outline-primary {
+    border: 1px solid #0066cc;
+    color: #0066cc;
+    background: #fff;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #0066cc;
+      color: #fff;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.2);
+      outline: none;
+    }
+
+    i.fas {
+      margin-right: 6px;
+    }
+  }
+}
+
+// Loading Indicator
+ds-loading.ds-themed-loading {
+  display: inline-block;
+  padding: 8px;
+  
+  ::ng-deep {
+    .spinner-border,
+    .loader {
+      width: 20px;
+      height: 20px;
+      border-width: 2px;
+      color: #0066cc;
+    }
+  }
+}
+
+// Expandable Node Specific
+.expandable-node {
+  .d-flex.flex-row {
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+// Childless Node Specific
+.childless-node {
+  padding-left: 28px; // Indent to align with expandable nodes
+  
+  h6 {
+    margin: 0;
+    font-weight: normal;
+  }
+}
+
+// Truncatable Content
+ds-truncatable {
+  width: 100%;
+  
+  ds-truncatable-part {
+    display: block;
+    
+    span {
+      display: block;
+    }
+  }
+}
+
+// Tree Node Padding
+[cdkTreeNodePadding] {
+  padding-left: 28px;
+}
+
+// Accessibility - Screen Reader Only
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Responsive Adjustments
+@media (max-width: 768px) {
+  .example-tree-node {
+    padding: 12px 0;
+  }
+
+  .lead {
+    font-size: 14px;
+  }
+
+  [cdkTreeNodePadding] {
+    padding-left: 20px;
+  }
+}
