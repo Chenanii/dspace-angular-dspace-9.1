@@ -5,11 +5,11 @@ services:
     container_name: dspace-angular
     environment:
       DSPACE_UI_SSL: 'false'
-      DSPACE_UI_HOST: elibrary.dimtmw.com
+      DSPACE_UI_HOST: localhost
       DSPACE_UI_PORT: '4100'
       DSPACE_UI_NAMESPACE: /
       DSPACE_REST_SSL: 'false'
-      DSPACE_REST_HOST: elibrary.dimtmw.com
+      DSPACE_REST_HOST: localhost
       DSPACE_REST_PORT: 8080
       DSPACE_REST_NAMESPACE: /server
       NODE_OPTIONS: "--max_old_space_size=6144"
