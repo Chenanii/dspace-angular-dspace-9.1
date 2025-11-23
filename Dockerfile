@@ -1,6 +1,5 @@
 FROM dspace/dspace-angular:dspace-9_x
 
-# Pre-configure environment variables for your domain
 ENV DSPACE_UI_SSL=false \
     DSPACE_UI_HOST=elibrary.dimtmw.com \
     DSPACE_UI_PORT=80 \
