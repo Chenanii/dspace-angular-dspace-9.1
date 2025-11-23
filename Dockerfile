@@ -1,18 +1,13 @@
-FROM node:18
+FROM dspace/dspace-angular:dspace-9_x
 
-# Install Python and build tools (Debian style)
-RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
+# Pre-configure environment variables for your domain
+ENV DSPACE_UI_SSL=false \
+    DSPACE_UI_HOST=elibrary.dimtmw.com \
+    DSPACE_UI_PORT=80 \
+    DSPACE_UI_NAMESPACE=/ \
+    DSPACE_REST_SSL=false \
+    DSPACE_REST_HOST=api.elibrary.dimtmw.com \
+    DSPACE_REST_PORT=80 \
+    DSPACE_REST_NAMESPACE=/server
 
-WORKDIR /app
-ADD . /app/
-EXPOSE 4000
-
-# Install node dependencies
-RUN npm ci
-
-# Increase Node memory
-ENV NODE_OPTIONS="--max_old_space_size=4096"
-ENV NODE_ENV=development
-
-# Start dev server
-CMD npm run serve -- --host 0.0.0.0
+EXPOSE 4100
