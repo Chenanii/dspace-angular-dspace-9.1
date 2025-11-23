@@ -1,4 +1,4 @@
-#changed yml for frontend this is docker-compose.yml for dspace-angular -production only 
+#this is for dspace-angular development only
 
 services:
   dspace-angular:
