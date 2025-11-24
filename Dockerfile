@@ -9,6 +9,22 @@ RUN git clone --branch dspace-9.1 --depth 1 https://github.com/DSpace/dspace-ang
 # Install dependencies
 RUN npm ci
 
+# Configure for your domain
+RUN echo '{\n\
+  "ui": {\n\
+    "ssl": false,\n\
+    "host": "elibrary.dimtmw.com",\n\
+    "port": 80,\n\
+    "nameSpace": "/"\n\
+  },\n\
+  "rest": {\n\
+    "ssl": false,\n\
+    "host": "api.elibrary.dimtmw.com",\n\
+    "port": 80,\n\
+    "nameSpace": "/server"\n\
+  }\n\
+}' > config/config.prod.yml
+
 # Build for production
 RUN npm run build:prod
 
@@ -16,7 +32,7 @@ RUN npm run build:prod
 FROM nginx:alpine
 
 # Copy built files
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/dist/dspace-angular /usr/share/nginx/html
 
 # Copy nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
