@@ -3,13 +3,9 @@ FROM node:18 AS builder
 
 WORKDIR /app
 
-# Copy local Angular project
 COPY . .
-
-# Install dependencies
 RUN npm ci
 
-# Create config for your domain using a heredoc (clean + no VS Code errors)
 RUN mkdir -p config && cat <<EOF > config/config.prod.yml
 {
   "ui": {
@@ -27,13 +23,13 @@ RUN mkdir -p config && cat <<EOF > config/config.prod.yml
 }
 EOF
 
-# Build Angular for production
 RUN npm run build:prod
 
 # Stage 2: Serve using nginx
 FROM nginx:alpine
 
 COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/config/config.prod.yml /usr/share/nginx/html/assets/config.json
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
