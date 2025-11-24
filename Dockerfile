@@ -3,43 +3,38 @@ FROM node:18 AS builder
 
 WORKDIR /app
 
-# Copy your local DSpace Angular files instead of cloning
+# Copy local Angular project
 COPY . .
 
 # Install dependencies
 RUN npm ci
 
-# Configure for your domain
-RUN echo '{\n\
-  "ui": {\n\
-    "ssl": false,\n\
-    "host": "elibrary.dimtmw.com",\n\
-    "port": 80,\n\
-    "nameSpace": "/"\n\
-  },\n\
-  "rest": {\n\
-    "ssl": false,\n\
-    "host": "api.elibrary.dimtmw.com",\n\
-    "port": 80,\n\
-    "nameSpace": "/server"\n\
-  }\n\
-}' > config/config.prod.yml
+# Create config for your domain using a heredoc (clean + no VS Code errors)
+RUN mkdir -p config && cat <<EOF > config/config.prod.yml
+{
+  "ui": {
+    "ssl": false,
+    "host": "elibrary.dimtmw.com",
+    "port": 80,
+    "nameSpace": "/"
+  },
+  "rest": {
+    "ssl": false,
+    "host": "api.elibrary.dimtmw.com",
+    "port": 80,
+    "nameSpace": "/server"
+  }
+}
+EOF
 
-# Build for production
+# Build Angular for production
 RUN npm run build:prod
 
-# Check what was created
-RUN ls -la /app/dist/ || echo "No dist folder"
-
-# Stage 2: Serve with nginx
+# Stage 2: Serve using nginx
 FROM nginx:alpine
 
-# Copy built files
 COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Copy nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
-
 CMD ["nginx", "-g", "daemon off;"]
