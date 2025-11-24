@@ -6,22 +6,21 @@ WORKDIR /app
 COPY . .
 RUN npm ci
 
-RUN mkdir -p config && cat <<EOF > config/config.prod.yml
-{
-  "ui": {
-    "ssl": false,
-    "host": "elibrary.dimtmw.com",
-    "port": 80,
-    "nameSpace": "/"
-  },
-  "rest": {
-    "ssl": false,
-    "host": "api.elibrary.dimtmw.com",
-    "port": 80,
-    "nameSpace": "/server"
-  }
-}
-EOF
+# Create proper JSON config
+RUN mkdir -p config && echo '{\n\
+  "ui": {\n\
+    "ssl": false,\n\
+    "host": "elibrary.dimtmw.com",\n\
+    "port": 80,\n\
+    "nameSpace": "/"\n\
+  },\n\
+  "rest": {\n\
+    "ssl": false,\n\
+    "host": "api.elibrary.dimtmw.com",\n\
+    "port": 80,\n\
+    "nameSpace": "/server"\n\
+  }\n\
+}' > config/config.prod.json
 
 RUN npm run build:prod
 
@@ -29,7 +28,7 @@ RUN npm run build:prod
 FROM nginx:alpine
 
 COPY --from=builder /app/dist /usr/share/nginx/html
-COPY --from=builder /app/config/config.prod.yml /usr/share/nginx/html/assets/config.json
+COPY --from=builder /app/config/config.prod.json /usr/share/nginx/html/assets/config.json
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
