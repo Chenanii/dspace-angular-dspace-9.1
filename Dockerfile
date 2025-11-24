@@ -1,16 +1,42 @@
-FROM dspace/dspace-angular:dspace-9_x
+# Stage 1: Build the Angular app
+FROM node:18 AS builder
 
-# Pre-configure environment variables
-# These tell Angular where the backend API is
-ENV DSPACE_UI_SSL=false \
-    DSPACE_UI_HOST=elibrary.dimtmw.com \
-    DSPACE_UI_PORT=80 \
-    DSPACE_UI_NAMESPACE=/ \
-    DSPACE_REST_SSL=false \
-    DSPACE_REST_HOST=api.elibrary.dimtmw.com \
-    DSPACE_REST_PORT=80 \
-    DSPACE_REST_NAMESPACE=/server
+WORKDIR /app
 
-# The base image already has everything built
-# Just expose the port
-EXPOSE 4100 
+# Clone DSpace Angular source
+RUN git clone --branch dspace-9.1 --depth 1 https://github.com/DSpace/dspace-angular.git .
+
+# Install dependencies
+RUN npm ci
+
+# Configure for your domain
+RUN echo '{\n\
+  "ui": {\n\
+    "ssl": false,\n\
+    "host": "elibrary.dimtmw.com",\n\
+    "port": 80,\n\
+    "nameSpace": "/"\n\
+  },\n\
+  "rest": {\n\
+    "ssl": false,\n\
+    "host": "api.elibrary.dimtmw.com",\n\
+    "port": 80,\n\
+    "nameSpace": "/server"\n\
+  }\n\
+}' > config/config.prod.yml
+
+# Build for production
+RUN npm run build:prod
+
+# Stage 2: Serve with nginx
+FROM nginx:alpine
+
+# Copy built files
+COPY --from=builder /app/dist/dspace-angular /usr/share/nginx/html
+
+# Copy nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
