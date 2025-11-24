@@ -3,8 +3,8 @@ FROM node:18 AS builder
 
 WORKDIR /app
 
-# Clone DSpace Angular source
-RUN git clone --branch dspace-9.1 --depth 1 https://github.com/DSpace/dspace-angular.git .
+# Copy your local DSpace Angular files instead of cloning
+COPY . .
 
 # Install dependencies
 RUN npm ci
@@ -28,11 +28,14 @@ RUN echo '{\n\
 # Build for production
 RUN npm run build:prod
 
+# Check what was created
+RUN ls -la /app/dist/ || echo "No dist folder"
+
 # Stage 2: Serve with nginx
 FROM nginx:alpine
 
 # Copy built files
-COPY --from=builder /app/dist/dspace-angular /usr/share/nginx/html
+COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Copy nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
