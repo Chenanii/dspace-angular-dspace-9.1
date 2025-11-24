@@ -27,6 +27,8 @@ RUN npm run build:prod
 # Stage 2: Serve using nginx
 FROM nginx:alpine
 
+RUN mkdir -p /usr/share/nginx/html/assets
+
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY --from=builder /app/config/config.prod.json /usr/share/nginx/html/assets/config.json
 COPY nginx.conf /etc/nginx/conf.d/default.conf
