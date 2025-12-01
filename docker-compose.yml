@@ -1,31 +1,156 @@
 networks:
   dspacenet:
+    ipam:
+      config:
+        - subnet: 172.23.0.0/16
 
 services:
+
   dspace-angular:
+    image: chenanii/dspace-angular:latest
     container_name: dspace-angular
+    command: >
+      sh -c "npm start -- --host=0.0.0.0 --disable-host-check"
     environment:
+      # Internal serving (HTTP inside Docker)
       DSPACE_UI_SSL: 'false'
-      DSPACE_UI_HOST: dspace-angular
+      DSPACE_UI_HOST: 0.0.0.0
       DSPACE_UI_PORT: '4000'
       DSPACE_UI_NAMESPACE: /
-
-      DSPACE_REST_SSL: 'false'
-      DSPACE_REST_HOST: dspace
-      DSPACE_REST_PORT: 8080
+      # External API (HTTPS for browser requests)
+      DSPACE_REST_SSL: 'true'
+      DSPACE_REST_HOST: api.elibrary.dimtmw.com
+      DSPACE_REST_PORT: '443'
       DSPACE_REST_NAMESPACE: /server
-
-    build:
-      context: .
-      dockerfile: Dockerfile
-
-    image: dspace-angular:latest
+    ports:
+      - "4000:4000"
     networks:
       - dspacenet
 
-    ports:
-      - "4000:4000"
-      - "9876:9876"
 
+  dspace:
+    container_name: dspace
+    environment:
+
+      dspace__P__dir: /dspace
+      dspace__P__server__P__url: https://api.elibrary.dimtmw.com/server
+      dspace__P__ui__P__url: https://elibrary.dimtmw.com
+      dspace__P__name: 'DIMT eLibrary'
+      db__P__url: 'jdbc:postgresql://dspacedb:5432/dspace'
+
+
+      # solr.server: Ensure we are using the 'dspacesolr' image for Solr
+      solr__P__server: http://dspacesolr:8983/solr
+      # matomo.tracker.url: Ensure we are using the 'matomo' image for Matomo
+      matomo__P__tracker__P__url: http://matomo
+      # proxies.trusted.ipranges: This setting is required for a REST API running in Docker to trust requests
+      # from the host machine. This IP range MUST correspond to the 'dspacenet' subnet defined above.
+      proxies__P__trusted__P__ipranges: '172.23.0'
+      LOGGING_CONFIG: /dspace/config/log4j2-container.xml
+      pubmed__P__apiKey: dummy
+
+
+      mail__P__server: smtp.hostinger.com
+      mail__P__from__P__address: domasi@dimtmw.com
+      mail__P__from__P__name: "DIMT eLibrary"
+      mail__P__admin: edgarchinenga@gmail.com
+      mail__P__username: domasi@dimtmw.com
+      mail__P__password: dom@DIMT@2021
+      mail__P__server__P__port: 465
+      mail__P__smtp__P__auth: 'true'
+      mail__P__smtp__P__starttls__P__enable: 'false'
+      mail__P__smtp__P__ssl__P__enable: 'true'
+
+    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-dspace}/dspace:${DSPACE_VER:-dspace-9_x-test}"
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    depends_on:
+    - dspacedb
+    networks:
+      - dspacenet
+    ports:
+    - published: 8080
+      target: 8080
+    - published: 8000
+      target: 8000
     stdin_open: true
     tty: true
+    volumes:
+    # Keep DSpace assetstore directory between reboots
+    - assetstore:/dspace/assetstore
+    - ./dspace/config:/dspace/config
+    entrypoint:
+    - /bin/bash
+    - '-c'
+    - |
+      while (!</dev/tcp/dspacedb/5432) > /dev/null 2>&1; do sleep 1; done;
+      /dspace/bin/dspace database migrate
+      java -jar /dspace/webapps/server-boot.jar --dspace.dir=/dspace
+  # DSpace PostgreSQL database container
+  dspacedb:
+    container_name: dspacedb
+    # Uses a custom Postgres image with pgcrypto installed
+    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-dspace}/dspace-postgres-pgcrypto:${DSPACE_VER:-dspace-9_x}"
+    build:
+      # Must build out of subdirectory to have access to install script for pgcrypto
+      context: ./dspace/src/main/docker/dspace-postgres-pgcrypto/
+    environment:
+      PGDATA: /pgdata
+      POSTGRES_PASSWORD: dspace
+    networks:
+      dspacenet:
+    ports:
+    - published: 5432
+      target: 5432
+    stdin_open: true
+    tty: true
+    volumes:
+    # Keep Postgres data directory between reboots
+    - pgdata:/pgdata
+  # DSpace Solr container
+  dspacesolr:
+    container_name: dspacesolr
+    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-dspace}/dspace-solr:${DSPACE_VER:-dspace-9_x}"
+    build:
+      context: ./dspace/src/main/docker/dspace-solr/
+      # Provide path to Solr configs necessary to build Docker image
+      additional_contexts:
+        solrconfigs: ./dspace/solr/
+      args:
+        SOLR_VERSION: "${SOLR_VER:-9.8}"
+    networks:
+      dspacenet:
+    ports:
+    - published: 8983
+      target: 8983
+    stdin_open: true
+    tty: true
+    working_dir: /var/solr/data
+    volumes:
+    # Keep Solr data directory between reboots
+    - solr_data:/var/solr/data
+    user: root
+    entrypoint:
+    - /bin/bash
+    - '-c'
+    - |
+      init-var-solr
+      precreate-core authority /opt/solr/server/solr/configsets/authority
+      cp -r /opt/solr/server/solr/configsets/authority/* authority
+      precreate-core oai /opt/solr/server/solr/configsets/oai
+      cp -r /opt/solr/server/solr/configsets/oai/* oai
+      precreate-core search /opt/solr/server/solr/configsets/search
+      cp -r /opt/solr/server/solr/configsets/search/* search
+      precreate-core statistics /opt/solr/server/solr/configsets/statistics
+      cp -r /opt/solr/server/solr/configsets/statistics/* statistics
+      precreate-core qaevent /opt/solr/server/solr/configsets/qaevent
+      cp -r /opt/solr/server/solr/configsets/qaevent/* qaevent
+      precreate-core suggestion /opt/solr/server/solr/configsets/suggestion
+      cp -r /opt/solr/server/solr/configsets/suggestion/* suggestion
+      chown -R solr:solr /var/solr
+      runuser -u solr -- solr-foreground
+volumes:
+  assetstore:
+  pgdata:
+  solr_data:
